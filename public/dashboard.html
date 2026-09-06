@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Películas y Series</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/60 sticky top-0 backdrop-blur z-10">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-purple-600 flex items-center justify-center font-bold text-sm">🎬</div>
+        <span class="font-semibold">Películas y Series</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button id="logoutBtn" class="text-sm bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sub-tabs Películas / Series -->
+  <nav class="max-w-6xl mx-auto px-4 pt-4 flex gap-2">
+    <button data-tipo="movie" class="vod-tab-btn px-4 py-2 rounded-lg bg-purple-600 text-sm font-medium">Películas</button>
+    <button data-tipo="series" class="vod-tab-btn px-4 py-2 rounded-lg bg-slate-800 text-sm font-medium">Series</button>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-4">
+
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 id="tituloSeccion" class="font-semibold text-lg">Películas</h2>
+      <div class="flex gap-2">
+        <button id="importarM3uBtn" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-sm font-medium">
+          Importar lista M3U
+        </button>
+        <button id="nuevoItemBtn" class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-lg text-sm font-medium">
+          + Agregar manualmente
+        </button>
+      </div>
+    </div>
+
+    <!-- Vista de categorías (default) -->
+    <div id="categoriasView" class="space-y-3">
+      <input id="buscarCategoria" placeholder="Buscar categoría..."
+        class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm w-64" />
+      <div id="categoriasGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+    </div>
+
+    <!-- Vista de items de UNA categoría puntual -->
+    <div id="itemsView" class="hidden space-y-4">
+      <div class="flex items-center gap-3">
+        <button id="volverCategoriasBtn" class="text-sm text-indigo-400 hover:underline">‹ Volver a categorías</button>
+        <h3 id="categoriaActualTitulo" class="font-semibold"></h3>
+      </div>
+
+      <input id="buscarItem" placeholder="Buscar título..."
+        class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm w-64" />
+
+      <div class="overflow-x-auto rounded-xl border border-slate-800">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-900 text-slate-400">
+            <tr>
+              <th class="text-left px-4 py-3">Título</th>
+              <th class="text-left px-4 py-3">TMDB ID</th>
+              <th class="text-left px-4 py-3">URL</th>
+              <th class="text-right px-4 py-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="itemsTbody" class="divide-y divide-slate-800"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal genérico -->
+  <div id="modalOverlay" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-20">
+    <div id="modalBox" class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4"></div>
+  </div>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
