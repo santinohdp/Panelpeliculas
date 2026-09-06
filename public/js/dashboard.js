@@ -49,6 +49,137 @@ async function cargarProveedores() {
   proveedoresCache = proveedores;
 }
 
+/* ---------- Tabs de nivel superior: Usuarios / Contenido ---------- */
+document.querySelectorAll('.top-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.top-tab-btn').forEach(b => b.className = 'top-tab-btn px-4 py-2 rounded-lg bg-slate-800 text-sm font-medium');
+    btn.className = 'top-tab-btn px-4 py-2 rounded-lg bg-indigo-600 text-sm font-medium';
+    document.querySelectorAll('.top-tab-panel').forEach(p => p.classList.add('hidden'));
+    document.getElementById(`top-${btn.dataset.tab}`).classList.remove('hidden');
+
+    if (btn.dataset.tab === 'usuarios') cargarUsuarios();
+    if (btn.dataset.tab === 'contenido') cargarCategorias();
+  });
+});
+
+/* =========================================================
+   USUARIOS (clientes que se loguean contra la API)
+   ========================================================= */
+function badgeEstado(estado) {
+  const map = {
+    activo: 'bg-emerald-500/20 text-emerald-400',
+    suspendido: 'bg-slate-500/20 text-slate-400',
+    vencido: 'bg-red-500/20 text-red-400',
+  };
+  return `<span class="px-2 py-0.5 rounded-full text-xs font-medium ${map[estado] || ''}">${estado}</span>`;
+}
+
+async function cargarUsuarios() {
+  const buscar = document.getElementById('buscarUsuario').value.trim();
+  const url = buscar ? `${API_BASE}/usuarios?buscar=${encodeURIComponent(buscar)}` : `${API_BASE}/usuarios`;
+  const { usuarios } = await apiFetch(url);
+
+  const tbody = document.getElementById('usuariosTbody');
+  tbody.innerHTML = usuarios.map(u => `
+    <tr>
+      <td class="px-4 py-3 font-medium">${u.username}</td>
+      <td class="px-4 py-3">${badgeEstado(u.estado)}</td>
+      <td class="px-4 py-3 text-slate-400">${u.fecha_vencimiento}</td>
+      <td class="px-4 py-3 text-slate-400">${u.max_conexiones}</td>
+      <td class="px-4 py-3 text-right space-x-2">
+        <button class="text-indigo-400 hover:underline text-xs" onclick="editarUsuario(${u.id})">Editar</button>
+        <button class="text-amber-400 hover:underline text-xs" onclick="toggleUsuario(${u.id}, ${!u.activo})">
+          ${u.activo ? 'Suspender' : 'Activar'}
+        </button>
+        <button class="text-red-400 hover:underline text-xs" onclick="borrarUsuario(${u.id})">Eliminar</button>
+      </td>
+    </tr>
+  `).join('') || `<tr><td colspan="5" class="px-4 py-6 text-center text-slate-500">Sin usuarios</td></tr>`;
+}
+
+document.getElementById('buscarUsuario').addEventListener('input', () => cargarUsuarios());
+
+function formUsuarioHTML(u = {}) {
+  return `
+    <h2 class="text-lg font-semibold">${u.id ? 'Editar usuario' : 'Nuevo usuario'}</h2>
+    <form id="usuarioForm" class="space-y-3">
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Usuario</label>
+        <input name="username" value="${u.username || ''}" required
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">${u.id ? 'Nueva contraseña (opcional)' : 'Contraseña'}</label>
+        <input name="password" type="text" ${u.id ? '' : 'required'}
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Fecha de vencimiento</label>
+        <input name="fecha_vencimiento" type="date" value="${u.fecha_vencimiento || ''}" required
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Máx. conexiones</label>
+        <input name="max_conexiones" type="number" min="1" value="${u.max_conexiones || 1}" required
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Notas</label>
+        <textarea name="notas" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm">${u.notas || ''}</textarea>
+      </div>
+      <p id="usuarioFormError" class="text-red-400 text-sm hidden"></p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-lg bg-slate-800 text-sm">Cancelar</button>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-600 text-sm font-medium">Guardar</button>
+      </div>
+    </form>
+  `;
+}
+
+document.getElementById('nuevoUsuarioBtn').addEventListener('click', () => {
+  openModal(formUsuarioHTML());
+  bindUsuarioForm();
+});
+
+async function editarUsuario(id) {
+  const { usuario } = await apiFetch(`${API_BASE}/usuarios/${id}`);
+  openModal(formUsuarioHTML(usuario));
+  bindUsuarioForm(id);
+}
+
+function bindUsuarioForm(id) {
+  document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const payload = Object.fromEntries(fd.entries());
+    const errorEl = document.getElementById('usuarioFormError');
+    try {
+      if (id) {
+        if (!payload.password) delete payload.password;
+        await apiFetch(`${API_BASE}/usuarios/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      } else {
+        await apiFetch(`${API_BASE}/usuarios`, { method: 'POST', body: JSON.stringify(payload) });
+      }
+      closeModal();
+      cargarUsuarios();
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.classList.remove('hidden');
+    }
+  });
+}
+
+async function toggleUsuario(id, activo) {
+  await apiFetch(`${API_BASE}/usuarios/${id}/estado`, { method: 'PATCH', body: JSON.stringify({ activo }) });
+  cargarUsuarios();
+}
+
+async function borrarUsuario(id) {
+  if (!confirm('¿Eliminar este usuario?')) return;
+  await apiFetch(`${API_BASE}/usuarios/${id}`, { method: 'DELETE' });
+  cargarUsuarios();
+}
+
 /* ---------- Sub-tabs Películas / Series ---------- */
 document.querySelectorAll('.vod-tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -322,4 +453,4 @@ document.getElementById('importarM3uBtn').addEventListener('click', async () => 
 });
 
 /* ---------- Carga inicial ---------- */
-cargarCategorias();
+cargarUsuarios();
