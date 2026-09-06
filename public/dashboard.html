@@ -21,57 +21,93 @@
     </div>
   </header>
 
-  <!-- Sub-tabs Películas / Series -->
+  <!-- Tabs de nivel superior -->
   <nav class="max-w-6xl mx-auto px-4 pt-4 flex gap-2">
-    <button data-tipo="movie" class="vod-tab-btn px-4 py-2 rounded-lg bg-purple-600 text-sm font-medium">Películas</button>
-    <button data-tipo="series" class="vod-tab-btn px-4 py-2 rounded-lg bg-slate-800 text-sm font-medium">Series</button>
+    <button data-tab="usuarios" class="top-tab-btn px-4 py-2 rounded-lg bg-indigo-600 text-sm font-medium">Usuarios</button>
+    <button data-tab="contenido" class="top-tab-btn px-4 py-2 rounded-lg bg-slate-800 text-sm font-medium">Contenido</button>
   </nav>
 
-  <main class="max-w-6xl mx-auto px-4 py-6 space-y-4">
+  <main class="max-w-6xl mx-auto px-4 py-6">
 
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <h2 id="tituloSeccion" class="font-semibold text-lg">Películas</h2>
-      <div class="flex gap-2">
-        <button id="importarM3uBtn" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-sm font-medium">
-          Importar lista M3U
-        </button>
-        <button id="nuevoItemBtn" class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-lg text-sm font-medium">
-          + Agregar manualmente
+    <!-- ===== USUARIOS ===== -->
+    <section id="top-usuarios" class="top-tab-panel space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <input id="buscarUsuario" placeholder="Buscar usuario..."
+          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm w-64" />
+        <button id="nuevoUsuarioBtn" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-medium">
+          + Nuevo usuario
         </button>
       </div>
-    </div>
-
-    <!-- Vista de categorías (default) -->
-    <div id="categoriasView" class="space-y-3">
-      <input id="buscarCategoria" placeholder="Buscar categoría..."
-        class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm w-64" />
-      <div id="categoriasGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-    </div>
-
-    <!-- Vista de items de UNA categoría puntual -->
-    <div id="itemsView" class="hidden space-y-4">
-      <div class="flex items-center gap-3">
-        <button id="volverCategoriasBtn" class="text-sm text-indigo-400 hover:underline">‹ Volver a categorías</button>
-        <h3 id="categoriaActualTitulo" class="font-semibold"></h3>
-      </div>
-
-      <input id="buscarItem" placeholder="Buscar título..."
-        class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm w-64" />
 
       <div class="overflow-x-auto rounded-xl border border-slate-800">
         <table class="w-full text-sm">
           <thead class="bg-slate-900 text-slate-400">
             <tr>
-              <th class="text-left px-4 py-3">Título</th>
-              <th class="text-left px-4 py-3">TMDB ID</th>
-              <th class="text-left px-4 py-3">URL</th>
+              <th class="text-left px-4 py-3">Usuario</th>
+              <th class="text-left px-4 py-3">Estado</th>
+              <th class="text-left px-4 py-3">Vencimiento</th>
+              <th class="text-left px-4 py-3">Conexiones</th>
               <th class="text-right px-4 py-3">Acciones</th>
             </tr>
           </thead>
-          <tbody id="itemsTbody" class="divide-y divide-slate-800"></tbody>
+          <tbody id="usuariosTbody" class="divide-y divide-slate-800"></tbody>
         </table>
       </div>
-    </div>
+    </section>
+
+    <!-- ===== CONTENIDO (Películas / Series) ===== -->
+    <section id="top-contenido" class="top-tab-panel hidden space-y-4">
+
+      <!-- Sub-tabs Películas / Series -->
+      <nav class="flex gap-2">
+        <button data-tipo="movie" class="vod-tab-btn px-4 py-2 rounded-lg bg-purple-600 text-sm font-medium">Películas</button>
+        <button data-tipo="series" class="vod-tab-btn px-4 py-2 rounded-lg bg-slate-800 text-sm font-medium">Series</button>
+      </nav>
+
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="tituloSeccion" class="font-semibold text-lg">Películas</h2>
+        <div class="flex gap-2">
+          <button id="importarM3uBtn" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-sm font-medium">
+            Importar lista M3U
+          </button>
+          <button id="nuevoItemBtn" class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-lg text-sm font-medium">
+            + Agregar manualmente
+          </button>
+        </div>
+      </div>
+
+      <!-- Vista de categorías (default) -->
+      <div id="categoriasView" class="space-y-3">
+        <input id="buscarCategoria" placeholder="Buscar categoría..."
+          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm w-64" />
+        <div id="categoriasGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      </div>
+
+      <!-- Vista de items de UNA categoría puntual -->
+      <div id="itemsView" class="hidden space-y-4">
+        <div class="flex items-center gap-3">
+          <button id="volverCategoriasBtn" class="text-sm text-indigo-400 hover:underline">‹ Volver a categorías</button>
+          <h3 id="categoriaActualTitulo" class="font-semibold"></h3>
+        </div>
+
+        <input id="buscarItem" placeholder="Buscar título..."
+          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm w-64" />
+
+        <div class="overflow-x-auto rounded-xl border border-slate-800">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-900 text-slate-400">
+              <tr>
+                <th class="text-left px-4 py-3">Título</th>
+                <th class="text-left px-4 py-3">TMDB ID</th>
+                <th class="text-left px-4 py-3">URL</th>
+                <th class="text-right px-4 py-3">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="itemsTbody" class="divide-y divide-slate-800"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- Modal genérico -->
